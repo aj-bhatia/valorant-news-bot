@@ -4,51 +4,64 @@ import asyncpraw
 import asyncio
 from discord.ext import commands
 from keep_alive import keep_alive
-#from reddit import scrape
 
-reddit = asyncpraw.Reddit(client_id=os.environ['CLIENTID'],      # your client id
-                     client_secret=os.environ['CLIENTSECRET'],  #your client secret
-                     user_agent='scrape', #user agent name
-                     username = os.environ['USERNAME'],     # your reddit username
-                     password = os.environ['REDDITPASSWORD'])     # your reddit password
+# intializes reddit with necessary information
+reddit = asyncpraw.Reddit(client_id=os.environ['CLIENTID'],
+                     client_secret=os.environ['CLIENTSECRET'],
+                     user_agent=os.environ['USERAGENT'],
+                     username = os.environ['REDDITUSERNAME'],
+                     password = os.environ['REDDITPASSWORD'])
                   
-client = commands.Bot(command_prefix='$')
+client = commands.Bot(command_prefix='$') # Set command prefix
 
+# Sets notification when the bot is ready and sets the activity of the bot
 @client.event
 async def on_ready():
   await client.change_presence(status=discord.Status.online, activity=discord.Game('For Help: $commands'))
   print('Bot is now active! {0.user}'.format(client))
 
+# Sets $commands as the help command. Displays different commands and their functions
 @client.command()
 async def commands(ctx):
-  embed = discord.Embed(title='Commands',descrption='Lists all commands that are currently implemented in the bot!')
-  embed.description = ('Prefix:$\nCommands:\n$valorant : Link to [playVALORANT News page](https://playvalorant.com/en-us/news/)\n$mainreddit : Link to [r/VALORANT](https://www.reddit.com/r/VALORANT/)\n$compreddit : Link to [r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)\n$pbe : Link to [r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)\n$search : Search a subreddit for the top post. Use format: $search Subreddit SearchQuery Time NumberOfPosts. Time should be: hour, day, week, month, year, or all\n$hot : Search a subreddit for most recent hot posts. Use format: $hot Subreddit NumberOfPosts \n$matches : Sends most recent Post-Match-Discussions from the past 24 hours.')
+  embed = discord.Embed(title='Commands',descrption='Lists all commands that are currently implemented in the bot! Prefix: $', color=0x0fe0e0)
+  embed.add_field(title='$valorant', description='Link to [playVALORANT News page](https://playvalorant.com/en-us/news/)')
+  embed.add_field(title='$mainreddit', description='Link to [r/VALORANT](https://www.reddit.com/r/VALORANT/)')
+  embed.add_field(title='$compreddit', description='Link to [r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)')
+  embed.add_field(title='$pbereddit', description='Link to [r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)')
+  embed.add_field(title='$search', description='Search a subreddit for the top post. Use format: $search Subreddit SearchQuery Time NumberOfPosts. Time should be: hour, day, week, month, year, or all')
+  embed.add_field(title='$hot', description='Search a subreddit for most recent hot posts. Use format: $hot Subreddit NumberOfPosts')
+  embed.add_field(title='$matches', description='Sends most recent Post-Match-Discussions from the past 24 hours.')
   await ctx.send(embed=embed)
 
+# Creates $valorant command that sends a link to the Valorant News Page
 @client.command()
 async def valorant(ctx):
   embed = discord.Embed()
   embed.description = ('[Valorant News Page](https://playvalorant.com/en-us/news/)')
   await ctx.send(embed=embed)
 
+# Creates $mainreddit command that sends a link to the playVALORANT Reddit page
 @client.command()
 async def mainreddit(ctx):
   embed = discord.Embed()
   embed.description = ('[r/VALORANT](https://www.reddit.com/r/VALORANT/)')
   await ctx.send(embed=embed)
 
+# Creates $compreddit command that sends a link to the VALORANTCompetitve Reddit page
 @client.command()
 async def compreddit(ctx):
   embed = discord.Embed()
   embed.description = ('[r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)')
   await ctx.send(embed=embed) 
 
+# Creates $pbereddit command that sends a link to the VALORANT PBE Reddit page
 @client.command()
-async def pbe(ctx):
+async def pbereddit(ctx):
   embed = discord.Embed()
   embed.description = ('[r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)')
   await ctx.send(embed=embed) 
 
+# Creates $search command that scrapes Reddit for a specific type of post
 @client.command()
 async def search(ctx, *args):
   if len(args) != 4:
@@ -61,6 +74,7 @@ async def search(ctx, *args):
       embed.add_field(name=title, value='['+str(submission.author)+']('+submission.url+')')
     await ctx.send(embed=embed)
 
+# Creates $hot command that scrapes Reddit for the top posts from a specific subreddit
 @client.command()
 async def hot(ctx, *args):
   if len(args) != 2:
@@ -75,6 +89,7 @@ async def hot(ctx, *args):
       count += 1
   await ctx.send(embed=embed)
 
+# Creates $matches command that scrapes Reddit for th emost recent Post-Match Discussions
 @client.command()
 async def matches(ctx):
   check = False
@@ -91,6 +106,7 @@ async def matches(ctx):
   else:
     await ctx.send('No new Post-Match Discussions')
 
+# Automatically sends the latest playVALORANT subreddit posts that are flaired as News
 async def digest():
     while True:
       await client.wait_until_ready()
@@ -107,6 +123,7 @@ async def digest():
         await channel.send(embed=embed)
       await asyncio.sleep(1800)
 
+# Automatically sends the latest VALORANTCompetitive subreddit posts that are post match discussions
 async def esports():
     while True:
       await client.wait_until_ready()
@@ -124,11 +141,12 @@ async def esports():
         await channel.send(embed=embed)
       await asyncio.sleep(3600)
 
+# Loops both tasks constantly
 client.loop.create_task(digest())
 client.loop.create_task(esports())
 
+# Function to keep the webserver up
 keep_alive()
 
+# Runs the bot with a specific token
 client.run(os.environ['TOKEN'])
-
-
