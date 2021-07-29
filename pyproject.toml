@@ -7,6 +7,9 @@ authors = ["Crazychicken442 <<>>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 discord = "^1.7.3"
+praw = "^7.3.0"
+Flask = "^2.0.1"
+schedule = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 
