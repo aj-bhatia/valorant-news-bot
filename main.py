@@ -4,6 +4,7 @@ import asyncpraw
 import asyncio
 from discord.ext import commands
 from keep_alive import keep_alive
+from replit import db
 
 # intializes reddit with necessary information
 reddit = asyncpraw.Reddit(client_id=os.environ['CLIENTID'],
@@ -24,13 +25,14 @@ async def on_ready():
 @client.command()
 async def commands(ctx):
   embed = discord.Embed(title='Commands',descrption='Lists all commands that are currently implemented in the bot! Prefix: $', color=0x0fe0e0)
-  embed.add_field(title='$valorant', description='Link to [playVALORANT News page](https://playvalorant.com/en-us/news/)')
-  embed.add_field(title='$mainreddit', description='Link to [r/VALORANT](https://www.reddit.com/r/VALORANT/)')
-  embed.add_field(title='$compreddit', description='Link to [r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)')
-  embed.add_field(title='$pbereddit', description='Link to [r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)')
-  embed.add_field(title='$search', description='Search a subreddit for the top post. Use format: $search Subreddit SearchQuery Time NumberOfPosts. Time should be: hour, day, week, month, year, or all')
-  embed.add_field(title='$hot', description='Search a subreddit for most recent hot posts. Use format: $hot Subreddit NumberOfPosts')
-  embed.add_field(title='$matches', description='Sends most recent Post-Match-Discussions from the past 24 hours.')
+  embed.add_field(name='$valorant', value='Link to [playVALORANT News page](https://playvalorant.com/en-us/news/)')
+  embed.add_field(name='$mainreddit', value='Link to [r/VALORANT](https://www.reddit.com/r/VALORANT/)')
+  embed.add_field(name='$compreddit', value='Link to [r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)')
+  embed.add_field(name='$pbereddit', value='Link to [r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)')
+  embed.add_field(name='$search', value='Search a subreddit for the top post. Use format: $search Subreddit SearchQuery Time NumberOfPosts. Time should be: hour, day, week, month, year, or all')
+  embed.add_field(name='$hot', value='Search a subreddit for most recent hot posts. Use format: $hot Subreddit NumberOfPosts')
+  embed.add_field(name='$matches', value='Sends most recent Post-Match-Discussions from the past 24 hours.')
+  embed.add_field(name='$digest', value='Sends most recent VALORANT news from the past 24 hours.')
   await ctx.send(embed=embed)
 
 # Creates $valorant command that sends a link to the Valorant News Page
@@ -71,7 +73,7 @@ async def search(ctx, *args):
     embed = discord.Embed(title='Your Reddit Search:', description="These are the top results for your search", color=0x0000ff)
     async for submission in subreddit.search(args[1], time_filter=args[2], limit=int(args[3])):
       title = submission.title[:60]+'...' if len(submission.title) > 60 else submission.title
-      embed.add_field(name=title, value='['+str(submission.author)+']('+submission.url+')')
+      embed.add_field(name=title, value='[Source]('+submission.url+')')
     await ctx.send(embed=embed)
 
 # Creates $hot command that scrapes Reddit for the top posts from a specific subreddit
@@ -85,7 +87,7 @@ async def hot(ctx, *args):
   async for submission in subreddit.hot():
     if int(args[1]) != count:
       title = submission.title[:60]+'...' if len(submission.title) > 60 else submission.title
-      embed.add_field(name=title, value='['+str(submission.author)+']('+submission.url+')')
+      embed.add_field(name=title, value='[Source]('+submission.url+')')
       count += 1
   await ctx.send(embed=embed)
 
@@ -106,44 +108,107 @@ async def matches(ctx):
   else:
     await ctx.send('No new Post-Match Discussions')
 
-# Automatically sends the latest playVALORANT subreddit posts that are flaired as News
-async def digest():
+# Creates $digest that sends the latest playVALORANT subreddit posts that are flaired as News
+@client.command()
+async def digest(ctx):
+      subreddit = await reddit.subreddit('VALORANT')
+      check = False
+      embed = discord.Embed(title='Valorant News Digest:', description="All of the most recent playVALORANT news!", color=0x00ff00)
+      async for submission in subreddit.search(query='flair:"News"',syntax='lucene',time_filter='month',limit=9):
+        check = True
+        title = submission.title[:60]+'...' if len(submission.title) > 60 else submission.title
+        embed.add_field(name=title, value='[Source]('+submission.url+')')
+      if check == True:
+        await ctx.send(embed=embed)
+
+async def gamenews():
     while True:
       await client.wait_until_ready()
       channel = client.get_channel(866418599300038721)
-      await asyncio.sleep(1800)
       subreddit = await reddit.subreddit('VALORANT')
       check = False
-      embed = discord.Embed(title='Valorant News Digest:', description="Sends all of the most recent playVALORANT news!", color=0x00ff00)
+      embed = discord.Embed(title='Latest VALORANT News:', color=0x00ff00)
       async for submission in subreddit.search(query='flair:"News"',syntax='lucene',time_filter='hour',limit=6):
-        check = True
-        title = submission.title[:60]+'...' if len(submission.title) > 60 else submission.title
-        embed.add_field(name=title, value='['+str(submission.author)+']('+submission.url+')')
+        if submission.id not in db.keys():
+          check = True
+          title = submission.title[:60]+'...' if len(submission.title) > 60 else submission.title
+          embed.add_field(name=title, value='[Source]('+submission.url+')')
+          db[submission.id] = submission.title
       if check == True:
         await channel.send(embed=embed)
-      await asyncio.sleep(1800)
+      await asyncio.sleep(60)
+
+# Automatically sends the latest VALORANT subreddit with the flair "Esports"
+async def valorantesports():
+    while True:
+      await client.wait_until_ready()
+      channel = client.get_channel(866418599300038721)
+      subreddit = await reddit.subreddit('VALORANT')
+      check = False
+      embed = discord.Embed(title='New Esports News!', color=0xf0ff0f)
+      async for submission in subreddit.search(query='flair:"Esports"',syntax='lucene',time_filter='hour',limit=3):
+        if submission.id not in db.keys():
+          check = True
+          title = submission.title[:60]+'...' if len(submission.title) > 60 else submission.title
+          embed.add_field(name=title, value='[Source]('+submission.url+')')
+          db[submission.id] = submission.title
+      if check == True:
+        await channel.send(embed=embed)
+      await asyncio.sleep(60)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are post match discussions
-async def esports():
+async def esportsdiscussions():
     while True:
       await client.wait_until_ready()
       channel = client.get_channel(866418599300038721)
       subreddit = await reddit.subreddit('VALORANTCompetitive')
       check = False
-      embed = discord.Embed(title='Valorant E-Sports Digest:', description="Sends all of the most recent Post-Match Discussions!", color=0xff0000)
-      async for submission in subreddit.search(query='Post-Match Discussion', time_filter='hour',limit=6):
-        check = True
-        teams = submission.title.split('/')
-        game = teams[1]
-        teams = teams[0][:-1]
-        embed.add_field(name=teams, value='['+game+']('+submission.url+')')
+      embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
+      async for submission in subreddit.search(query='Post-Match Discussion', time_filter='hour',limit=3):
+        if submission.id not in db.keys():
+          check = True
+          teams = submission.title.split('/')
+          game = teams[1]
+          teams = teams[0][:-1]
+          embed.add_field(name=teams, value='['+game+']('+submission.url+')')
+          db[submission.id] = submission.title
       if check == True:
         await channel.send(embed=embed)
-      await asyncio.sleep(3600)
+      await asyncio.sleep(60)
+
+# Automatically sends the latest VALORANTCompetitive subreddit posts that are flaired with News & Events
+async def esportsnews():
+    while True:
+      await client.wait_until_ready()
+      channel = client.get_channel(866418599300038721)
+      subreddit = await reddit.subreddit('VALORANTCompetitive')
+      check = False
+      embed = discord.Embed(title='New Esports News!', color=0xff0ff0)
+      async for submission in subreddit.search(query='flair:"News & Events | Esports"', syntax='lucene', time_filter='hour',limit=3):
+        if submission.id not in db.keys():
+          check = True
+          teams = submission.title.split('/')
+          game = teams[1]
+          teams = teams[0][:-1]
+          embed.add_field(name=teams, value='['+game+']('+submission.url+')')
+          db[submission.id] = submission.title
+      if check == True:
+        await channel.send(embed=embed)
+      await asyncio.sleep(60)
+
+async def clear_database():
+  while True:
+    await client.wait_until_ready()
+    if len(db) >= 250:
+      for i in db.keys():
+        del db[i]
+    await asyncio.sleep(86400)
 
 # Loops both tasks constantly
-client.loop.create_task(digest())
-client.loop.create_task(esports())
+client.loop.create_task(gamenews())
+client.loop.create_task(esportsdiscussions())
+client.loop.create_task(esportsnews())
+client.loop.create_task(clear_database())
 
 # Function to keep the webserver up
 keep_alive()
