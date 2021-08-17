@@ -38,6 +38,8 @@ async def help(ctx):
   embed.add_field(name='$digest', value='Sends most recent VALORANT news from the past 24 hours.')
   embed.add_field(name='$addchannel',value='Sets the channel where all automatic messages will be sent. Use this command in whichever channel you would like to recieve the notifications.')
   embed.add_field(name='$removechannel',value='Removes the channel where all automatic messages will be sent. Use this command in whichever channel you would like to remove.')
+  embed.add_field(name='$sub', value='Subscribes to specific automatic news updates: gamenews, esportsnews, discussions, or all.')
+  embed.add_field(name='$unsub', value='Unsubscribes from specific automatic news updates: gamenews, esportsnews, discussions, or all.')
   await ctx.send(embed=embed)
 
 # Creates $valorant command that sends a link to the Valorant News Page
@@ -76,8 +78,82 @@ async def addchannel(ctx):
       check = True
       await ctx.send('This channel is already added.')
   if check == False:
-    db[ctx.channel.id] = ctx.guild.id
+    db[ctx.channel.id] = str(111)
     await ctx.send('This channel has been added!')
+
+@client.command()
+async def unsub(ctx, arg):
+  cid = ctx.channel.id
+  cid = str(cid)
+  check1 = False
+  check2 = False
+  if cid in db.keys():
+    check2 = True
+  if str(arg) == 'gamenews' or str(arg) == 'esportsnews' or str(arg) == 'discussions' or str(arg) == 'all':
+    check1 = True
+  if check1 == True and check2 == True:
+    if arg == 'all':
+      db[cid] = '000'
+      await ctx.send('This channel has been unsubscribed from, all news updates.')
+    if arg == 'gamenews':
+      value = db[cid]
+      if value[0] == '1':
+        value = '0'+value[1:]
+      db[cid] = value
+      await ctx.send('This channel has been unsubscribed from game news updates.')
+    if arg == 'esportsnews':
+      value = db[cid]
+      if value[1] == '1':
+        value = value[0]+'0'+value[2]
+      db[cid] = value
+      await ctx.send('This channel has been unsubscribed from esports news updates.')
+    if arg == 'discussions':
+      value = db[cid]
+      if value[2] == '1':
+        value = value[:2]+'0'
+      db[cid] = value
+      await ctx.send('This channel has been unsubscribed from post-match discussions threads.')
+  elif check1 == False and check2 == True:
+    await ctx.send('Please enter the category of post you would like to unsubscribe from: gamenews, esportsnews, discussions, or all.')
+  else:
+    await ctx.send('This channel is not being sent auto-messages, please add the channel and then unsubscribe from specific post types.')
+
+@client.command()
+async def sub(ctx, arg):
+  cid = ctx.channel.id
+  cid = str(cid)
+  check1 = False
+  check2 = False
+  if cid in db.keys():
+    check2 = True
+  if str(arg) == 'gamenews' or str(arg) == 'esportsnews' or str(arg) == 'discussions' or str(arg) == 'all':
+    check1 = True
+  if check1 == True and check2 == True:
+    if arg == 'all':
+      db[cid] = '111'
+      await ctx.send('This channel has been subscribed to all news updates.')
+    if arg == 'gamenews':
+      value = db[cid]
+      if value[0] == '0':
+        value = '1'+value[1:]
+      db[cid] = value
+      await ctx.send('This channel has been subscribed to game news updates.')
+    if arg == 'esportsnews':
+      value = db[cid]
+      if value[1] == '0':
+        value = value[0]+'1'+value[2]
+      db[cid] = value
+      await ctx.send('This channel has been subscribed to esports news updates.')
+    if arg == 'discussions':
+      value = db[cid]
+      if value[2] == '0':
+        value = value[:2]+'1'
+      db[cid] = value
+      await ctx.send('This channel has been subscribed to post-match discussions threads.')
+  elif check1 == False and check2 == True:
+    await ctx.send('Please enter the category of post you would like to subscribe to: gamenews, esportsnews, discussions, or all.')
+  else:
+    await ctx.send('This channel is not being sent auto-messages, please add the channel and then subscribe to specific post types.')
 
 @client.command()
 async def removechannel(ctx):
@@ -151,10 +227,10 @@ async def gamenews():
     while True:
       await client.wait_until_ready()
       counter = 1
-      for cid in db.keys():
+      for cid, val in db.items():
+        check = False
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANT')
-        check = False
         embed = discord.Embed(title='Latest VALORANT News:', color=0x00ff00)
         async for submission in subreddit.search(query='flair:"News"',syntax='lucene',time_filter='hour',limit=10):
           if submission.id not in sentposts:
@@ -162,34 +238,12 @@ async def gamenews():
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
             if counter == len(db.keys()):
               sentposts.append(submission.id)
+        if val[0] == '0':
+          check= False
         if check == True:
           await channel.send(embed=embed)
         counter += 1
-      await asyncio.sleep(60)
-
-# Automatically sends the latest VALORANTCompetitive subreddit posts that are post match discussions
-async def esportsdiscussions():
-    while True:
-      await client.wait_until_ready()
-      counter = 1
-      for cid in db.keys():
-        check = False
-        channel = client.get_channel(int(cid))
-        subreddit = await reddit.subreddit('VALORANTCompetitive')
-        embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
-        async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='hour',limit=12):
-          if submission.id not in sentposts:
-            check = True
-            teams = submission.title.split('/')
-            game = teams[1]
-            teams = teams[0][:-1] if teams[0][-1] == ' ' else teams[0]
-            embed.add_field(name=teams, value='['+game+']('+submission.url+')')
-            if counter == len(db):
-              sentposts.append(submission.id)
-        if check == True:
-          await channel.send(embed=embed)
-        counter += 1
-      await asyncio.sleep(60)
+      await asyncio.sleep(300)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are flaired with News & Events
 async def esportsnews():
@@ -197,10 +251,10 @@ async def esportsnews():
       await client.wait_until_ready()
       counter = 1
       live = []
-      for cid in db.keys():
+      for cid, val in db.items():
+        check = False
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
-        check = False
         embed = discord.Embed(title='New Esports News!', color=0xff0ff0)
         async for submission in subreddit.search(query='Live Discussion Thread',sort='new',time_filter='day', limit=50):
           live.append(submission.id)
@@ -210,25 +264,53 @@ async def esportsnews():
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
             if counter == len(db.keys()):
               sentposts.append(submission.id)
+        if val[1] == '0':
+          check= False
         if check == True:
           await channel.send(embed=embed)
         counter += 1
-      await asyncio.sleep(60)
+      await asyncio.sleep(300)
+
+# Automatically sends the latest VALORANTCompetitive subreddit posts that are post match discussions
+async def esportsdiscussions():
+    while True:
+      await client.wait_until_ready()
+      counter = 1
+      for cid, val in db.items():
+        check = False
+        channel = client.get_channel(int(cid))
+        subreddit = await reddit.subreddit('VALORANTCompetitive')
+        embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
+        async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='hour',limit=9):
+          if submission.id not in sentposts:
+            check = True
+            teams = submission.title.split('/')
+            game = teams[1]
+            teams = teams[0][:-1] if teams[0][-1] == ' ' else teams[0]
+            embed.add_field(name=teams, value='['+game+']('+submission.url+')')
+            if counter == len(db):
+              sentposts.append(submission.id)
+        if val[2] == '0':
+          check= False
+        if check == True:
+          await channel.send(embed=embed)
+        counter += 1
+      await asyncio.sleep(300)
 
 # Loops all tasks constantly
 client.loop.create_task(gamenews())
-client.loop.create_task(esportsdiscussions())
 client.loop.create_task(esportsnews())
+client.loop.create_task(esportsdiscussions())
 
 """Test Commands"""
-#@client.command()
-#async def get_database(ctx):
-#  counter = 1
-#  for i in db.keys():
-#    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
-#    counter += 1
-#  if len(db.keys()) == 0:
-#    await ctx.send("The database is empty")
+@client.command()
+async def get_database(ctx):
+  counter = 1
+  for i in db.keys():
+    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
+    counter += 1
+  if len(db.keys()) == 0:
+    await ctx.send("The database is empty")
 
 #@client.command()
 #async def get_posts(ctx):
@@ -237,11 +319,11 @@ client.loop.create_task(esportsnews())
 #    await ctx.send('{}. {}'.format(counter, i))
 #    counter += 1
 
-#@client.command()
-#async def clear_database(ctx):
-#  for i in db.keys():
-#    del db[i]
-#  await ctx.send("Done!")
+@client.command()
+async def clear_database(ctx):
+  for i in db.keys():
+    del db[i]
+  await ctx.send("Done!")
 
 #@client.command()
 #async def clear_chat(ctx):
