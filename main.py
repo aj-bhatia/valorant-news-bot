@@ -22,24 +22,24 @@ sentposts = []
 @client.event
 async def on_ready():
   await client.change_presence(status=discord.Status.online, activity=discord.Game('For Help: $help'))
-  print('Bot is now active! {0.user}'.format(client))
+  print('I\'m in ' + str(len(client.guilds)) + ' servers! {0.user}'.format(client))
 
 # Sets $commands as the help command. Displays different commands and their functions
 @client.command()
 async def help(ctx):
-  embed = discord.Embed(title='Help',description='Lists all commands that are currently implemented in the bot!\nNOTE: Without setting a channel using this command, the bot will NOT send automatic messages.\nPrefix: $', color=0x0fe0e0)
-  embed.add_field(name='$valorant', value='Link to [playVALORANT News page](https://playvalorant.com/en-us/news/)')
-  embed.add_field(name='$mainreddit', value='Link to [r/VALORANT](https://www.reddit.com/r/VALORANT/)')
-  embed.add_field(name='$compreddit', value='Link to [r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)')
-  embed.add_field(name='$pbereddit', value='Link to [r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)')
-  embed.add_field(name='$search', value='Search r/VALORANTCompetitivefor the top post with a specific search query.')
-  embed.add_field(name='$hot', value='Search r/VALORANTCompetitive for most recent hot posts.')
-  embed.add_field(name='$matches', value='Sends most recent Post-Match-Discussions from the past 24 hours.')
-  embed.add_field(name='$digest', value='Sends most recent VALORANT news from the past 24 hours.')
-  embed.add_field(name='$addchannel',value='Sets the channel where all automatic messages will be sent. Use this command in whichever channel you would like to recieve the notifications.')
-  embed.add_field(name='$removechannel',value='Removes the channel where all automatic messages will be sent. Use this command in whichever channel you would like to remove.')
-  embed.add_field(name='$sub', value='Subscribes to specific automatic news updates: gamenews, esportsnews, discussions, or all.')
-  embed.add_field(name='$unsub', value='Unsubscribes from specific automatic news updates: gamenews, esportsnews, discussions, or all.')
+  embed = discord.Embed(title='Help Menu',description='Lists all commands that are currently implemented in the bot!\nNOTE: Without setting a channel using this command, the bot will NOT send automatic messages.\nPrefix: $', color=0x0fe0e0)
+  embed.add_field(name='$valorant', value='Link to [playVALORANT News page](https://playvalorant.com/en-us/news/)', inline=False)
+  embed.add_field(name='$mainreddit', value='Link to [r/VALORANT](https://www.reddit.com/r/VALORANT/)', inline=False)
+  embed.add_field(name='$compreddit', value='Link to [r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)', inline=False)
+  embed.add_field(name='$pbereddit', value='Link to [r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)', inline=False)
+  embed.add_field(name='$search', value='Search r/VALORANTCompetitivefor the top post with a specific search query.', inline=False)
+  embed.add_field(name='$hot', value='Search r/VALORANTCompetitive for most recent hot posts.', inline=False)
+  embed.add_field(name='$matches', value='Sends most recent Post-Match-Discussions from the past 24 hours.', inline=False)
+  embed.add_field(name='$digest', value='Sends most recent VALORANT news from the past 24 hours.', inline=False)
+  embed.add_field(name='$addchannel',value='Sets the channel where all automatic messages will be sent. Use this command in whichever channel you would like to recieve the notifications.', inline=False)
+  embed.add_field(name='$removechannel',value='Removes the channel where all automatic messages will be sent. Use this command in whichever channel you would like to remove.', inline=False)
+  embed.add_field(name='$sub', value='Subscribes to specific automatic news updates: gamenews, esportsnews, discussions, or all.', inline=False)
+  embed.add_field(name='$unsub', value='Unsubscribes from specific automatic news updates: gamenews, esportsnews, discussions, or all.', inline=False)
   await ctx.send(embed=embed)
 
 # Creates $valorant command that sends a link to the Valorant News Page
@@ -303,14 +303,14 @@ client.loop.create_task(esportsnews())
 client.loop.create_task(esportsdiscussions())
 
 """Test Commands"""
-@client.command()
-async def get_database(ctx):
-  counter = 1
-  for i in db.keys():
-    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
-    counter += 1
-  if len(db.keys()) == 0:
-    await ctx.send("The database is empty")
+#@client.command()
+#async def get_database(ctx):
+#  counter = 1
+#  for i in db.keys():
+#    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
+#    counter += 1
+#  if len(db.keys()) == 0:
+#    await ctx.send("The database is empty")
 
 #@client.command()
 #async def get_posts(ctx):
@@ -319,11 +319,11 @@ async def get_database(ctx):
 #    await ctx.send('{}. {}'.format(counter, i))
 #    counter += 1
 
-@client.command()
-async def clear_database(ctx):
-  for i in db.keys():
-    del db[i]
-  await ctx.send("Done!")
+#@client.command()
+#async def clear_database(ctx):
+#  for i in db.keys():
+#    del db[i]
+#  await ctx.send("Done!")
 
 #@client.command()
 #async def clear_chat(ctx):
