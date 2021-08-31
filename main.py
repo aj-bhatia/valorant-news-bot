@@ -27,11 +27,12 @@ async def on_ready():
 # Sets $commands as the help command. Displays different commands and their functions
 @client.command()
 async def help(ctx):
-  embed = discord.Embed(title='Help Menu',description='Lists all commands that are currently implemented in the bot!\nNOTE: Without setting a channel using this command, the bot will NOT send automatic messages.\nPrefix: $', color=0x0fe0e0)
+  embed = discord.Embed(title='Help Menu',description='Lists all commands that are currently implemented in the bot!\nNOTE: Without setting a channel using this command, the bot will NOT send automatic messages.\nPrefix: $\nIf you like this bot please consider giving it an upvote or review on top.gg\n(link in bot description)', color=0x0fe0e0)
   embed.add_field(name='$valorant', value='Link to [playVALORANT News page](https://playvalorant.com/en-us/news/)', inline=False)
   embed.add_field(name='$mainreddit', value='Link to [r/VALORANT](https://www.reddit.com/r/VALORANT/)', inline=False)
   embed.add_field(name='$compreddit', value='Link to [r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)', inline=False)
   embed.add_field(name='$pbereddit', value='Link to [r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)', inline=False)
+  embed.add_field(name='$feedback', value='Link to the [Feedback Form](https://forms.gle/FhKvyZV4aamjw8bGA)', inline=False)
   embed.add_field(name='$search', value='Search r/VALORANTCompetitivefor the top post with a specific search query.', inline=False)
   embed.add_field(name='$hot', value='Search r/VALORANTCompetitive for most recent hot posts.', inline=False)
   embed.add_field(name='$matches', value='Sends most recent Post-Match-Discussions from the past 24 hours.', inline=False)
@@ -44,51 +45,51 @@ async def help(ctx):
 
 @help.error
 async def help_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 # Creates $valorant command that sends a link to the Valorant News Page
 @client.command()
 async def valorant(ctx):
-  embed = discord.Embed()
-  embed.description = ('[Valorant News Page](https://playvalorant.com/en-us/news/)')
-  await ctx.send(embed=embed)
+  await ctx.send(embed=discord.Embed(title='Valorant News Page', url='https://playvalorant.com/en-us/news/', color=0x301934))
 
 @valorant.error
 async def valorant_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 # Creates $mainreddit command that sends a link to the playVALORANT Reddit page
 @client.command()
 async def mainreddit(ctx):
-  embed = discord.Embed()
-  embed.description = ('[r/VALORANT](https://www.reddit.com/r/VALORANT/)')
-  await ctx.send(embed=embed)
+  await ctx.send(embed=discord.Embed(title='r/VALORANT', url='https://www.reddit.com/r/VALORANT/', color=0x301934))
 
 @mainreddit.error
 async def mainreddit_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 # Creates $compreddit command that sends a link to the VALORANTCompetitive Reddit page
 @client.command()
 async def compreddit(ctx):
-  embed = discord.Embed()
-  embed.description = ('[r/ValorantCompetitive](https://www.reddit.com/r/ValorantCompetitive)')
-  await ctx.send(embed=embed) 
+  await ctx.send(embed=discord.Embed(title='r/ValorantCompetitive', url='https://www.reddit.com/r/ValorantCompetitive', color=0x301934))
 
 @compreddit.error
 async def compreddit_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 # Creates $pbereddit command that sends a link to the VALORANT PBE Reddit page
 @client.command()
 async def pbereddit(ctx):
-  embed = discord.Embed()
-  embed.description = ('[r/ValorantPBE](https://www.reddit.com/r/ValorantPBE/)')
-  await ctx.send(embed=embed) 
+  await ctx.send(embed=discord.Embed(title='r/ValorantPBE', url='https://www.reddit.com/r/ValorantPBE/', color=0x301934))
 
 @pbereddit.error
 async def pbereddit_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
+
+@client.command()
+async def feedback(ctx):
+  await ctx.send(embed=discord.Embed(title='Feedback Form', url='https://forms.gle/FhKvyZV4aamjw8bGA', color=0xFF5733))
+
+@feedback.error
+async def feedback_error(ctx, error: commands.CommandError):
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 @client.command()
 async def addchannel(ctx):
@@ -103,7 +104,7 @@ async def addchannel(ctx):
 
 @addchannel.error
 async def addchannel_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 @client.command()
 async def removechannel(ctx):
@@ -118,7 +119,7 @@ async def removechannel(ctx):
 
 @removechannel.error
 async def removechannel_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 @client.command()
 async def unsub(ctx, arg):
@@ -162,7 +163,7 @@ async def unsub_error(ctx, error: commands.CommandError):
   if isinstance(error, commands.MissingRequiredArgument):
     message = 'Please re-try the command with a category to be unsubscribed from: gamenews, esportsnews, discussions, or all.'
   else:
-    message = "Oh no! Something went wrong while running the command! Please re-try the command."
+    message = 'Oh no! Something went wrong while running the command! Please re-try the command.'
   await ctx.send(message)
 
 @client.command()
@@ -207,7 +208,7 @@ async def sub_error(ctx, error: commands.CommandError):
   if isinstance(error, commands.MissingRequiredArgument):
     message = 'Please re-try the command with a category to be subscribed to: gamenews, esportsnews, discussions, or all.'
   else:
-    message = "Oh no! Something went wrong while running the command! Please re-try the command."
+    message = 'Oh no! Something went wrong while running the command! Please re-try the command.'
   await ctx.send(message)
 
 # Creates $search command that scrapes Reddit for a specific type of post
@@ -224,7 +225,7 @@ async def search(ctx, *args):
 
 @search.error
 async def search_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 # Creates $hot command that scrapes Reddit for the top posts from a specific subreddit
 @client.command()
@@ -240,7 +241,7 @@ async def hot(ctx):
 
 @hot.error
 async def hot_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 # Creates $matches command that scrapes Reddit for th emost recent Post-Match Discussions
 @client.command()
@@ -265,7 +266,7 @@ async def matches(ctx):
 
 @matches.error
 async def matches_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 # Creates $digest that sends the latest playVALORANT subreddit posts that are flaired as News
 @client.command()
@@ -281,7 +282,7 @@ async def digest(ctx):
 
 @digest.error
 async def digest_error(ctx, error: commands.CommandError):
-  await ctx.send("Oh no! Something went wrong while running the command! Please re-try the command.")
+  await ctx.send('Oh no! Something went wrong while running the command! Please re-try the command. If this continues to not work, please submit a bug report to the feedback form.')
 
 async def gamenews():
     while True:
@@ -289,6 +290,8 @@ async def gamenews():
       counter = 1
       for cid, val in db.items():
         check = False
+        if val[0] == 0:
+          break
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANT')
         embed = discord.Embed(title='Latest VALORANT News:', color=0x00ff00)
@@ -298,8 +301,6 @@ async def gamenews():
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
             if counter == len(db.keys()):
               sentposts.append(submission.id)
-        if val[0] == '0':
-          check= False
         if check == True:
           await channel.send(embed=embed)
         counter += 1
@@ -313,6 +314,8 @@ async def esportsnews():
       live = []
       for cid, val in db.items():
         check = False
+        if val[1] == '0':
+          break
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Esports News!', color=0xff0ff0)
@@ -324,8 +327,6 @@ async def esportsnews():
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
             if counter == len(db.keys()):
               sentposts.append(submission.id)
-        if val[1] == '0':
-          check= False
         if check == True:
           await channel.send(embed=embed)
         counter += 1
@@ -338,6 +339,8 @@ async def esportsdiscussions():
       counter = 1
       for cid, val in db.items():
         check = False
+        if val[2] == '0':
+          break
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
@@ -350,8 +353,6 @@ async def esportsdiscussions():
             embed.add_field(name=teams, value='['+game+']('+submission.url+')')
             if counter == len(db):
               sentposts.append(submission.id)
-        if val[2] == '0':
-          check= False
         if check == True:
           await channel.send(embed=embed)
         counter += 1
