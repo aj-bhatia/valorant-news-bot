@@ -134,7 +134,7 @@ async def unsub(ctx, arg):
   if check1 == True and check2 == True:
     if arg == 'all':
       db[cid] = '000'
-      await ctx.send('This channel has been unsubscribed from, all news updates.')
+      await ctx.send('This channel has been unsubscribed from all news updates.')
     if arg == 'gamenews':
       value = db[cid]
       if value[0] == '1':
@@ -291,7 +291,7 @@ async def gamenews():
       for cid, val in db.items():
         check = False
         if val[0] == 0:
-          break
+          continue
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANT')
         embed = discord.Embed(title='Latest VALORANT News:', color=0x00ff00)
@@ -302,20 +302,26 @@ async def gamenews():
             if counter == len(db.keys()):
               sentposts.append(submission.id)
         if check == True:
-          await channel.send(embed=embed)
+          try:
+            await channel.send(embed=embed)
+          except AttributeError:
+            if cid in db.keys():
+              del db[cid]
+            continue
         counter += 1
-      await asyncio.sleep(300)
+      await asyncio.sleep(120)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are flaired with News & Events
 async def esportsnews():
     while True:
+      await asyncio.sleep(60)
       await client.wait_until_ready()
       counter = 1
       live = []
       for cid, val in db.items():
         check = False
         if val[1] == '0':
-          break
+          continue 
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Esports News!', color=0xff0ff0)
@@ -328,19 +334,25 @@ async def esportsnews():
             if counter == len(db.keys()):
               sentposts.append(submission.id)
         if check == True:
-          await channel.send(embed=embed)
+          try:
+            await channel.send(embed=embed)
+          except AttributeError:
+            if cid in db.keys():
+              del db[cid]
+            continue
         counter += 1
-      await asyncio.sleep(300)
+      await asyncio.sleep(60)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are post match discussions
 async def esportsdiscussions():
     while True:
+      await asyncio.sleep(30)
       await client.wait_until_ready()
       counter = 1
       for cid, val in db.items():
         check = False
         if val[2] == '0':
-          break
+          continue
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
@@ -354,9 +366,14 @@ async def esportsdiscussions():
             if counter == len(db):
               sentposts.append(submission.id)
         if check == True:
-          await channel.send(embed=embed)
+          try:
+            await channel.send(embed=embed)
+          except AttributeError:
+            if cid in db.keys():
+              del db[cid]
+            continue
         counter += 1
-      await asyncio.sleep(300)
+      await asyncio.sleep(90)
 
 # Loops all tasks constantly
 client.loop.create_task(gamenews())
@@ -364,14 +381,14 @@ client.loop.create_task(esportsnews())
 client.loop.create_task(esportsdiscussions())
 
 """Test Commands"""
-#@client.command()
-#async def get_database(ctx):
-#  counter = 1
-#  for i in db.keys():
-#    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
-#    counter += 1
-#  if len(db.keys()) == 0:
-#    await ctx.send("The database is empty")
+@client.command()
+async def get_database(ctx):
+  counter = 1
+  for i in db.keys():
+    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
+    counter += 1
+  if len(db.keys()) == 0:
+    await ctx.send("The database is empty")
 
 #@client.command()
 #async def get_posts(ctx):
