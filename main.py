@@ -290,8 +290,6 @@ async def gamenews():
       counter = 1
       for cid, val in db.items():
         check = False
-        if val[0] == 0:
-          continue
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANT')
         embed = discord.Embed(title='Latest VALORANT News:', color=0x00ff00)
@@ -301,7 +299,7 @@ async def gamenews():
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
             if counter == len(db.keys()):
               sentposts.append(submission.id)
-        if check == True:
+        if check == True and val[0] == '1':
           try:
             await channel.send(embed=embed)
           except AttributeError:
@@ -314,14 +312,12 @@ async def gamenews():
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are flaired with News & Events
 async def esportsnews():
     while True:
-      await asyncio.sleep(60)
+      #await asyncio.sleep(60)
       await client.wait_until_ready()
       counter = 1
       live = []
       for cid, val in db.items():
         check = False
-        if val[1] == '0':
-          continue 
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Esports News!', color=0xff0ff0)
@@ -333,7 +329,7 @@ async def esportsnews():
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
             if counter == len(db.keys()):
               sentposts.append(submission.id)
-        if check == True:
+        if check == True and val[1] == '1':
           try:
             await channel.send(embed=embed)
           except AttributeError:
@@ -351,8 +347,6 @@ async def esportsdiscussions():
       counter = 1
       for cid, val in db.items():
         check = False
-        if val[2] == '0':
-          continue
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
@@ -365,7 +359,7 @@ async def esportsdiscussions():
             embed.add_field(name=teams, value='['+game+']('+submission.url+')')
             if counter == len(db):
               sentposts.append(submission.id)
-        if check == True:
+        if check == True and val[2] == '1':
           try:
             await channel.send(embed=embed)
           except AttributeError:
