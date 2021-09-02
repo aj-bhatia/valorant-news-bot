@@ -1,7 +1,7 @@
 # Valorant-News-Bot
 Hi! Thanks for checking out my bot! I put a lot of work into it and am really happy with how it came out!
 
-The goal I had for this bot was to create a system to  to automatically pull the latest news of the game Valorant from Reddit.
+The goal I had for this bot was to create a system to  automatically pull the latest news of the game Valorant from Reddit.
 Reddit has been one of the most reliable ways that I had gained the latest news about Valorant so I wanted to create a way to post the newest information into Discord as well!
 
 The bot has a few functions to meet this goal. One of which is to provide links to different pages that contain news for the game Valorant. These can all be accessed through different commands.
