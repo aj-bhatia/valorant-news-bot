@@ -287,7 +287,7 @@ async def digest_error(ctx, error: commands.CommandError):
 async def gamenews():
     while True:
       await client.wait_until_ready()
-      counter = 1
+      posts = []
       for cid, val in db.items():
         check = False
         channel = client.get_channel(int(cid))
@@ -295,10 +295,10 @@ async def gamenews():
         embed = discord.Embed(title='Latest VALORANT News:', color=0x00ff00)
         async for submission in subreddit.search(query='flair:"News"',syntax='lucene',time_filter='hour',limit=10):
           if submission.id not in sentposts:
+            if submission.id not in posts:
+              posts.append(submission.id)
             check = True 
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
-            if counter == len(db.keys()):
-              sentposts.append(submission.id)
         if check == True and val[0] == '1':
           try:
             await channel.send(embed=embed)
@@ -306,7 +306,10 @@ async def gamenews():
             if cid in db.keys():
               del db[cid]
             continue
-        counter += 1
+          except:
+            continue
+      for i in posts:
+        sentposts.append(i)
       await asyncio.sleep(120)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are flaired with News & Events
@@ -314,7 +317,7 @@ async def esportsnews():
     while True:
       #await asyncio.sleep(60)
       await client.wait_until_ready()
-      counter = 1
+      posts = []
       live = []
       for cid, val in db.items():
         check = False
@@ -325,10 +328,10 @@ async def esportsnews():
           live.append(submission.id)
         async for submission in subreddit.search(query='flair:"News & Events | Esports"', syntax='lucene', time_filter='hour',limit=12):
           if submission.id not in sentposts and submission.id not in live:
+            if submission.id not in posts:
+              posts.append(submission.id)
             check = True
             embed.add_field(name=submission.title, value='[Source]('+submission.url+')')
-            if counter == len(db.keys()):
-              sentposts.append(submission.id)
         if check == True and val[1] == '1':
           try:
             await channel.send(embed=embed)
@@ -336,7 +339,10 @@ async def esportsnews():
             if cid in db.keys():
               del db[cid]
             continue
-        counter += 1
+          except:
+            continue
+      for i in posts:
+        sentposts.append(i)
       await asyncio.sleep(60)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are post match discussions
@@ -344,7 +350,7 @@ async def esportsdiscussions():
     while True:
       await asyncio.sleep(30)
       await client.wait_until_ready()
-      counter = 1
+      posts = []
       for cid, val in db.items():
         check = False
         channel = client.get_channel(int(cid))
@@ -352,13 +358,13 @@ async def esportsdiscussions():
         embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
         async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='hour',limit=9):
           if submission.id not in sentposts:
+            if submission.id not in posts:
+              posts.append(submission.id)
             check = True
             teams = submission.title.split('/')
             game = teams[1]
             teams = teams[0][:-1] if teams[0][-1] == ' ' else teams[0]
             embed.add_field(name=teams, value='['+game+']('+submission.url+')')
-            if counter == len(db):
-              sentposts.append(submission.id)
         if check == True and val[2] == '1':
           try:
             await channel.send(embed=embed)
@@ -366,7 +372,10 @@ async def esportsdiscussions():
             if cid in db.keys():
               del db[cid]
             continue
-        counter += 1
+          except:
+            continue
+      for i in posts:
+        sentposts.append(i)
       await asyncio.sleep(90)
 
 # Loops all tasks constantly
@@ -374,15 +383,15 @@ client.loop.create_task(gamenews())
 client.loop.create_task(esportsnews())
 client.loop.create_task(esportsdiscussions())
 
-"""Test Commands"""
-@client.command()
-async def get_database(ctx):
-  counter = 1
-  for i in db.keys():
-    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
-    counter += 1
-  if len(db.keys()) == 0:
-    await ctx.send("The database is empty")
+#"""Test Commands"""
+#@client.command()
+#async def get_database(ctx):
+#  counter = 1
+#  for i in db.keys():
+#    await ctx.send('{}. {}: {}'.format(counter, i, db[i]))
+#    counter += 1
+#  if len(db.keys()) == 0:
+#    await ctx.send("The database is empty")
 
 #@client.command()
 #async def get_posts(ctx):
