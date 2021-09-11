@@ -3,6 +3,7 @@ import discord
 import asyncpraw
 import asyncio
 from discord.ext import commands
+from discord.utils import find
 from keep_alive import keep_alive
 from replit import db
 
@@ -23,6 +24,33 @@ sentposts = []
 async def on_ready():
   await client.change_presence(status=discord.Status.online, activity=discord.Game('For Help: $help'))
   print('I\'m in ' + str(len(client.guilds)) + ' servers! {0.user}'.format(client))
+
+@client.event
+async def on_guild_join(guild):
+    general = find(lambda x: x.name == 'general',  guild.text_channels)
+    if general and general.permissions_for(guild.me).send_messages:
+        await general.send('Hello! Thanks for adding me to your server! If you would like to recieve automatic Valorant News please use $addchannel to add a channel for the bot to send the news to. If you would like to access other commands, please browse the current features with $help.')
+
+@client.event
+async def on_command_error(ctx, error):
+  if isinstance(error, commands.CommandNotFound):
+    await ctx.send("Error! Command not found. Please look at the $help menu for viable commands.")
+    pass
+  else:
+    raise error
+
+@client.event
+async def on_guild_channel_delete(channel):
+  if str(channel.id) in db.keys():
+    del db[str(channel.id)]
+    print('A Channel has been deleted. It has been removed from the database.')
+
+@client.event
+async def on_guild_remove(guild):
+  for i in guild.channels:
+    if str(i.id) in db.keys():
+      del db[str(i.id)]
+      print ('Server has been deleted. Channel has been removed from the database.')
 
 # Sets $commands as the help command. Displays different commands and their functions
 @client.command()
@@ -302,10 +330,6 @@ async def gamenews():
         if check == True and val[0] == '1':
           try:
             await channel.send(embed=embed)
-          except AttributeError:
-            if cid in db.keys():
-              del db[cid]
-            continue
           except:
             continue
       for i in posts:
@@ -315,7 +339,7 @@ async def gamenews():
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are flaired with News & Events
 async def esportsnews():
     while True:
-      #await asyncio.sleep(60)
+      await asyncio.sleep(60)
       await client.wait_until_ready()
       posts = []
       live = []
@@ -335,10 +359,6 @@ async def esportsnews():
         if check == True and val[1] == '1':
           try:
             await channel.send(embed=embed)
-          except AttributeError:
-            if cid in db.keys():
-              del db[cid]
-            continue
           except:
             continue
       for i in posts:
@@ -356,7 +376,7 @@ async def esportsdiscussions():
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
-        async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='hour',limit=9):
+        async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='day',limit=9):
           if submission.id not in sentposts:
             if submission.id not in posts:
               posts.append(submission.id)
@@ -368,10 +388,6 @@ async def esportsdiscussions():
         if check == True and val[2] == '1':
           try:
             await channel.send(embed=embed)
-          except AttributeError:
-            if cid in db.keys():
-              del db[cid]
-            continue
           except:
             continue
       for i in posts:
