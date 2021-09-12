@@ -1,4 +1,5 @@
 import os
+import sys
 import discord
 import asyncpraw
 import asyncio
@@ -330,7 +331,12 @@ async def gamenews():
         if check == True and val[0] == '1':
           try:
             await channel.send(embed=embed)
+          except discord.Forbidden:
+            await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
+            del db[cid]
+            continue
           except:
+            print("Unexpected error:", sys.exc_info()[0], 'in Game News')
             continue
       for i in posts:
         sentposts.append(i)
@@ -359,7 +365,12 @@ async def esportsnews():
         if check == True and val[1] == '1':
           try:
             await channel.send(embed=embed)
+          except discord.Forbidden:
+            await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
+            del db[cid]
+            continue
           except:
+            print("Unexpected error:", sys.exc_info()[0], 'in Esports News')
             continue
       for i in posts:
         sentposts.append(i)
@@ -376,7 +387,7 @@ async def esportsdiscussions():
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
         embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
-        async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='day',limit=9):
+        async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='hour',limit=9):
           if submission.id not in sentposts:
             if submission.id not in posts:
               posts.append(submission.id)
@@ -388,7 +399,12 @@ async def esportsdiscussions():
         if check == True and val[2] == '1':
           try:
             await channel.send(embed=embed)
+          except discord.Forbidden:
+            await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
+            del db[cid]
+            continue
           except:
+            print("Unexpected error:", sys.exc_info()[0], 'in Post-Match Discussions')
             continue
       for i in posts:
         sentposts.append(i)
