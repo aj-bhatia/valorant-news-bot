@@ -14,7 +14,7 @@ reddit = asyncpraw.Reddit(client_id=os.environ['CLIENTID'],
                      user_agent=os.environ['USERAGENT'],
                      username = os.environ['REDDITUSERNAME'],
                      password = os.environ['REDDITPASSWORD'])
-                     
+                  
 client = commands.Bot(command_prefix='$') # Set command prefix
 client.remove_command('help')
 
@@ -181,7 +181,7 @@ async def unsub(ctx, arg):
       if value[2] == '1':
         value = value[:2]+'0'
       db[cid] = value
-      await ctx.send('This channel has been unsubscribed from post-match threads.')
+      await ctx.send('This channel has been unsubscribed from post-match discussions threads.')
   elif check1 == False and check2 == True:
     await ctx.send('Please enter the category of post you would like to unsubscribe from: gamenews, esportsnews, discussions, or all.')
   else:
@@ -226,7 +226,7 @@ async def sub(ctx, arg):
       if value[2] == '0':
         value = value[:2]+'1'
       db[cid] = value
-      await ctx.send('This channel has been subscribed to post-match threads.')
+      await ctx.send('This channel has been subscribed to post-match discussions threads.')
   elif check1 == False and check2 == True:
     await ctx.send('Please enter the category of post you would like to subscribe to: gamenews, esportsnews, discussions, or all.')
   else:
@@ -281,7 +281,7 @@ async def matches(ctx):
   embed = discord.Embed(title='Most Recent Valorant Matches:', color=0xf0f0f0)
   async for submission in subreddit.search(query='flair:"Discussion | Esports"',sort='new',time_filter='day', limit=50):
           discussions.append(submission.id)
-  async for submission in subreddit.search(query='Post-Match Thread',sort='new',time_filter='day',limit=9):
+  async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='day',limit=9):
     if submission.id in discussions:
       check = True
       teams = submission.title.split('/')
@@ -291,7 +291,7 @@ async def matches(ctx):
   if check == True:
     await ctx.send(embed=embed)
   else:
-    await ctx.send('No new Post-Match Threads')
+    await ctx.send('No new Post-Match Discussions')
 
 @matches.error
 async def matches_error(ctx, error: commands.CommandError):
@@ -332,10 +332,7 @@ async def gamenews():
           try:
             await channel.send(embed=embed)
           except discord.Forbidden:
-            try:
-              await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
-            except:
-              pass
+            await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
             del db[cid]
             continue
           except:
@@ -343,12 +340,12 @@ async def gamenews():
             continue
       for i in posts:
         sentposts.append(i)
-      await asyncio.sleep(500)
+      await asyncio.sleep(120)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are flaired with News & Events
 async def esportsnews():
     while True:
-      await asyncio.sleep(250)
+      await asyncio.sleep(60)
       await client.wait_until_ready()
       posts = []
       live = []
@@ -369,11 +366,7 @@ async def esportsnews():
           try:
             await channel.send(embed=embed)
           except discord.Forbidden:
-            print(cid)
-            try:
-              await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
-            except:
-              pass
+            await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
             del db[cid]
             continue
           except:
@@ -381,20 +374,20 @@ async def esportsnews():
             continue
       for i in posts:
         sentposts.append(i)
-      await asyncio.sleep(250)
+      await asyncio.sleep(60)
 
 # Automatically sends the latest VALORANTCompetitive subreddit posts that are post match discussions
 async def esportsdiscussions():
     while True:
-      await asyncio.sleep(100)
+      await asyncio.sleep(30)
       await client.wait_until_ready()
       posts = []
       for cid, val in db.items():
         check = False
         channel = client.get_channel(int(cid))
         subreddit = await reddit.subreddit('VALORANTCompetitive')
-        embed = discord.Embed(title='New Post-Match Thread!', color=0xff0000)
-        async for submission in subreddit.search(query='Post-Match Thread',sort='new',time_filter='hour',limit=9):
+        embed = discord.Embed(title='New Post-Match Discussion!', color=0xff0000)
+        async for submission in subreddit.search(query='Post-Match Discussion',sort='new',time_filter='hour',limit=9):
           if submission.id not in sentposts:
             if submission.id not in posts:
               posts.append(submission.id)
@@ -407,18 +400,15 @@ async def esportsdiscussions():
           try:
             await channel.send(embed=embed)
           except discord.Forbidden:
-            try:
-              await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
-            except:
-              pass
+            await channel.send('You have altered the permissions necessary for this bot. Due to this, this channel has been removed from automatic messages and will need to be readded once the proper permissions have been allowed.')
             del db[cid]
             continue
           except:
-            print("Unexpected error:", sys.exc_info()[0], 'in Post-Match Threads')
+            print("Unexpected error:", sys.exc_info()[0], 'in Post-Match Discussions')
             continue
       for i in posts:
         sentposts.append(i)
-      await asyncio.sleep(400)
+      await asyncio.sleep(90)
 
 # Loops all tasks constantly
 client.loop.create_task(gamenews())
